@@ -1,7 +1,7 @@
 ---
   name: Release
 
-  on:  # yamllint disable-line rule:truthy
+  on:
     pull_request:
     push:
       branches:
@@ -45,11 +45,11 @@
           echo "ARCHITECTURE=${{ matrix.architecture }}" >> $GITHUB_ENV
           echo "OSTYPE=${{ matrix.ostype }}" >> $GITHUB_ENV
           echo "REGISTRY=ghcr.io"
-      - name: Build, and Package
+      - name: Build and Package
         run: make build/package
       - name: Log in to the Container registry
         if: ${{ needs.release.outputs.published == 'true' }}
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -98,7 +98,7 @@
       steps:
       - name: Log in to the Container registry
         if: ${{ needs.release.outputs.published == 'true' }}
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -109,7 +109,7 @@
           docker pull ghcr.io/gh-org-template/template-1-github-release:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
           docker manifest create ghcr.io/gh-org-template/template-1-github-release:${{ needs.release.outputs.release-git-tag }}-${{ matrix.ostype }} \
             ghcr.io/gh-org-template/template-1-github-release:${{ needs.release.outputs.release-git-tag }}-aarch64-${{ matrix.ostype }} \
-            ghcr.io/gh-org-template/template-1-github-release:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }} \
+            ghcr.io/gh-org-template/template-1-github-release:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
           docker manifest push ghcr.io/gh-org-template/template-1-github-release:${{ needs.release.outputs.release-git-tag }}-${{ matrix.ostype }}
 
     done:
