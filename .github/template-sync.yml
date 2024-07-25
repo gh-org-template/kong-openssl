@@ -1,0 +1,10 @@
+files:
+  - "!.gitignore"
+  - "!.github/template-sync.yml"
+  - "!.pre-commit-config.yaml"
+  - "!Makefile"
+  - "!.github/dependabot.yml"
+  - "!.github/workflows/sync.yaml"
+  - "!.releaserc"
+  - "!build.sh"
+  - "!test.sh"
