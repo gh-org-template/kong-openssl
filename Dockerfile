@@ -5,16 +5,16 @@ ARG DOCKER_IMAGE_NAME
 
 
 # List out all image permutations to trick dependabot
-FROM --platform=linux/amd64 ghcr.io/gh-org-template/kong-build-images:apk-1.1.0 as x86_64-linux-musl
+FROM --platform=linux/amd64 ghcr.io/gh-org-template/kong-build-images:apk-1.1.1 as x86_64-linux-musl
 RUN echo 'noop'
 
-FROM --platform=linux/amd64 ghcr.io/gh-org-template/kong-build-images:rpm-1.1.0 as x86_64-linux-gnu
+FROM --platform=linux/amd64 ghcr.io/gh-org-template/kong-build-images:rpm-1.1.1 as x86_64-linux-gnu
 RUN echo 'noop'
 
-FROM --platform=linux/arm64 ghcr.io/gh-org-template/kong-build-images:apk-1.1.0 as aarch64-linux-musl
+FROM --platform=linux/arm64 ghcr.io/gh-org-template/kong-build-images:apk-1.1.1 as aarch64-linux-musl
 RUN echo 'noop'
 
-FROM --platform=linux/arm64 ghcr.io/gh-org-template/kong-build-images:rpm-1.1.0 as aarch64-linux-gnu
+FROM --platform=linux/arm64 ghcr.io/gh-org-template/kong-build-images:rpm-1.1.1 as aarch64-linux-gnu
 RUN echo 'noop'
 
 # Run the build script
