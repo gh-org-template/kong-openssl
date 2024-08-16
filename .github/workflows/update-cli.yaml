@@ -1,6 +1,9 @@
 name: Update Dockerfile Base Image
 
 on:
+  push:
+    branches:
+    - main
   workflow_dispatch:  # Allows manual triggering of the workflow
   schedule:
     - cron: '0 0 * * 1'  # Runs every Monday at 00:00 UTC
@@ -12,13 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
 
       - name: Set up Node.js (for Updatecli)
         uses: actions/setup-node@v3
@@ -32,18 +28,19 @@ jobs:
 
       - name: Run Updatecli to update Dockerfile
         env:
-          UPDATECLI_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          UPDATECLI_GITHUB_TOKEN: ${{ secrets.UPDATE_CLI_PR }}
           UPDATECLI_GITHUB_ACTOR: ${{ github.actor }}
         run: |
           updatecli diff --config manifest.yaml
           updatecli apply --config manifest.yaml
+          rm -rf updatecli*.tar.gz
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ steps.app-token.outputs.token }}
-          commit-message: "chore(deps): update Dockerfile base image"
-          branch: "update-dockerfile-base-image"
-          title: "chore(deps): Update Dockerfile Base Image"
-          body: "This PR updates the Dockerfile base image to the latest version."
+          token: ${{ secrets.UPDATE_CLI_PR }}
+          commit-message: "chore(deps): update dependencies per updatecli / manifest.yaml"
+          branch: "chore/deps-updatecli"
+          title: "chore(deps): Update Dependencies per updatecli"
+          body: "This PR updates the dependencies per the updatecli manifest.yaml file"
           labels: "auto-update"
