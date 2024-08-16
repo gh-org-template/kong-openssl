@@ -1,3 +1,15 @@
+scms:
+  repo:
+    kind: "github"
+    spec:
+      user: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+      email: "chutchic@gmail.com"
+      owner: "gh-org-template"
+      repository: "kong-openssl"
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+      branch: "main"
+
 sources:
   kbiLatestVersion:
     name: Get latest release
@@ -7,6 +19,7 @@ sources:
       repository: kong-build-images
       token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+
 targets:
   updateBaseDockerVersion:
     name: "Update base image"
