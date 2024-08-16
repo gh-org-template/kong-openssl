@@ -4,8 +4,9 @@ ARG DOCKER_REGISTRY=ghcr.io
 ARG DOCKER_IMAGE_NAME
 ARG DOCKER_ARCHITECTURE
 ARG OPERATING_SYSTEM
+ARG VERSION=1.1.1
 
-FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-build-images:${OPERATING_SYSTEM}-1.1.1 as build
+FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-build-images:${OPERATING_SYSTEM}-${VERSION} as build
 
 COPY . /src
 RUN /src/build.sh && /src/test.sh
