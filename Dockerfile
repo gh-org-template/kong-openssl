@@ -6,7 +6,7 @@ ARG DOCKER_ARCHITECTURE
 ARG OPERATING_SYSTEM
 ARG VERSION=1.1.1
 
-FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-build-images:${OPERATING_SYSTEM}-${VERSION} as build
+FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-build-images:${OPERATING_SYSTEM}-${VERSION} AS build
 
 COPY . /src
 RUN /src/build.sh && /src/test.sh
@@ -17,6 +17,6 @@ COPY .env /test/kong-openssl/.env
 
 
 # Copy the build result to scratch so we can export the result
-FROM scratch as package
+FROM scratch AS package
 
 COPY --from=build /tmp/build /
