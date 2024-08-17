@@ -112,6 +112,12 @@
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
           docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-${{ matrix.ostype }}
 
+      - name: Create a final multi-arch manifest with both linux-gnu and linux-musl
+        run: |
+          docker manifest create ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }} \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-linux-gnu \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-linux-musl
+          docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}
     done:
       needs: [artifacts]
       name: Done
