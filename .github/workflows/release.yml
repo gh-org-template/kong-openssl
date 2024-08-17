@@ -142,4 +142,21 @@
           else
             echo "All jobs succeeded or were skipped. Marking release as successful."
           fi
-      - run: echo 'done'
+
+    cleanup:
+      needs: [release]
+      if: failure()
+      name: Cleanup Half-Created Release/Tag
+      runs-on: ubuntu-latest
+      steps:
+      - name: Delete GitHub Release
+        run: |
+          if gh release view ${{ needs.release.outputs.release-git-tag }} >/dev/null 2>&1; then
+            gh release delete ${{ needs.release.outputs.release-git-tag }} --yes
+          fi
+      - name: Delete GitHub Tag
+        run: |
+          if git show-ref --tags ${{ needs.release.outputs.release-git-tag }}; then
+            git tag -d ${{ needs.release.outputs.release-git-tag }}
+            git push origin :refs/tags/${{ needs.release.outputs.release-git-tag }}
+          fi
