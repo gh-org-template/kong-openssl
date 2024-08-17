@@ -112,10 +112,25 @@
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
           docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-${{ matrix.ostype }}
 
+      - name: Create a final multi-arch manifest with both linux-gnu and linux-musl
+        run: |
+          docker manifest create ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }} \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-linux-gnu \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-linux-musl
+          docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}
+
     done:
-      needs: [artifacts]
+      needs: [release, artifacts, multi-arch]
       name: Done
-      if: needs.artifacts.result == 'success'
+      if: always()
       runs-on: ubuntu-latest
       steps:
+      - name: Check for Failed Jobs
+        run: |
+          if [[ "${{ needs.release.result }}" == "failure" || "${{ needs.artifacts.result }}" == "failure" || "${{ needs.multi-arch.result }}" == "failure" ]]; then
+            echo "One or more jobs failed. Marking release as failed."
+            exit 1
+          else
+            echo "All jobs succeeded or were skipped. Marking release as successful."
+          fi
       - run: echo 'done'
