@@ -112,19 +112,28 @@
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
           docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-${{ matrix.ostype }}
 
-      - name: Create a final multi-arch manifest with both linux-gnu and linux-musl
-        run: |
-          docker manifest create ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }} \
-            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-linux-gnu \
-            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-linux-musl
-          docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}
-
     done:
       needs: [release, artifacts, multi-arch]
       name: Done
       if: always()
       runs-on: ubuntu-latest
       steps:
+      - name: Log in to the Container registry
+        if: ${{ needs.release.outputs.published == 'true' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create a final multi-arch manifest with only linux-gnu
+        if: ${{ needs.release.outputs.published == 'true' }}
+        run: |
+          docker pull ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-linux-gnu
+          docker pull ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-linux-gnu
+          docker manifest create ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }} \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-linux-gnu \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-linux-gnu
+          docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}
       - name: Check for Failed Jobs
         run: |
           if [[ "${{ needs.release.result }}" == "failure" || "${{ needs.artifacts.result }}" == "failure" || "${{ needs.multi-arch.result }}" == "failure" ]]; then
