@@ -134,6 +134,21 @@
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-linux-gnu \
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-linux-gnu
           docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}
+      - uses: actions/create-github-app-token@v1
+        if: ${{ needs.release.result == 'success' }}
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Trigger Update Dockerfile Job on kong-runtime Repository
+        if: ${{ needs.release.result == 'success' }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          repository: gh-org-template/kong-runtime
+          event-type: update-required
+          client-payload: '{"ref":"main"}'
       - name: Check for Failed Jobs
         run: |
           if [[ "${{ needs.release.result }}" == "failure" || "${{ needs.artifacts.result }}" == "failure" || "${{ needs.multi-arch.result }}" == "failure" ]]; then
