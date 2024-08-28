@@ -96,6 +96,7 @@
           ostype: [linux-gnu, linux-musl]
       runs-on: ubuntu-latest
       steps:
+      - uses: actions/checkout@v4
       - name: Log in to the Container registry
         if: ${{ needs.release.outputs.published == 'true' }}
         uses: docker/login-action@v3
@@ -103,6 +104,9 @@
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set environment variables
+        run: |
+          grep -v '^#' .env >> $GITHUB_ENV
       - name: Combine per architecture images into a single multi-arch manifest
         run: |
           docker pull ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-${{ matrix.ostype }}
@@ -111,6 +115,11 @@
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-${{ matrix.ostype }} \
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
           docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-${{ matrix.ostype }}
+
+          docker manifest create ghcr.io/gh-org-template/kong-openssl:${{ env.OPENSSL_VERSION }}-${{ matrix.ostype }} \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-${{ matrix.ostype }} \
+            ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-${{ matrix.ostype }}
+          docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ env.OPENSSL_VERSION }}-${{ matrix.ostype }}
 
     done:
       needs: [release, artifacts, multi-arch]
