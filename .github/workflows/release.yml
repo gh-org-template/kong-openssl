@@ -143,7 +143,7 @@
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-x86_64-linux-gnu \
             ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}-aarch64-linux-gnu
           docker manifest push ghcr.io/gh-org-template/kong-openssl:${{ needs.release.outputs.release-git-tag }}
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v2
         if: ${{ needs.release.result == 'success' }}
         id: app-token
         with:
