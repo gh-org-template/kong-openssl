@@ -152,7 +152,7 @@
           owner: ${{ github.repository_owner }}
       - name: Trigger Update Dockerfile Job on kong-runtime Repository
         if: ${{ needs.release.result == 'success' }}
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
           repository: gh-org-template/kong-runtime
