@@ -15,12 +15,29 @@ function main() {
     with_backoff curl --fail -sSLo openssl.tar.gz "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
     tar -xzvf openssl.tar.gz
     pushd openssl-${OPENSSL_VERSION}
-        eval ./config \
-            -g shared \
-            -DPURIFY no-threads \
+
+        # Determine the architecture and set the appropriate OpenSSL target
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "x86_64" ]; then
+            OPENSSL_TARGET="linux-x86_64"
+        elif [ "$ARCH" = "aarch64" ]; then
+            OPENSSL_TARGET="linux-aarch64"
+        else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+        fi
+
+        # Configure for static build without mixing flags
+        ./Configure \
+            no-shared \
+            no-dso \
+            no-unit-test \
+            $OPENSSL_TARGET \
+            -fPIC \
             --prefix=/usr/local/kong \
-            --openssldir=/usr/local/kong no-unit-test '-Wl,-rpath,'\''$(LIBRPATH)'\'',--enable-new-dtags' && \
-        make -j2 && \
+            --openssldir=/usr/local/kong
+
+        make -j$(nproc)
         make install_sw DESTDIR=/tmp/build
     popd
     echo '--- installed openssl ---'
