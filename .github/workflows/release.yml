@@ -57,7 +57,7 @@
       - name: Docker meta
         if: ${{ needs.release.outputs.published == 'true' }}
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/gh-org-template/kong-openssl
           sep-tags: ' '
